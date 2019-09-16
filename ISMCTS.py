@@ -18,7 +18,7 @@
 from math import sqrt, log
 import random
 from copy import deepcopy
-
+import argparse
 
 class GameState:
     """ A state of the game, i.e. the game board. These are the only functions which are
@@ -428,10 +428,11 @@ def ISMCTS(rootstate, itermax, verbose=False):
     ).move  # return the move that was most visited
 
 
-def PlayGame():
+def PlayGame(args):
     """ Play a sample game between two ISMCTS players.
     """
-    state = KnockoutWhistState(4)
+    random.seed(args.seed)
+    state = KnockoutWhistState(args.players)
 
     while state.GetMoves() != []:
         print(str(state))
@@ -453,4 +454,7 @@ def PlayGame():
 
 
 if __name__ == "__main__":
-    PlayGame()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--players', type=int, help='number of players (default:4)', default=4)
+    parser.add_argument('--seed', type=int, help='random seed (default:None)', default=None)
+    PlayGame(parser.parse_args())
