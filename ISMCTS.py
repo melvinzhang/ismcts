@@ -1,4 +1,4 @@
-# This is a very simple Python 2.7 implementation of the Information Set Monte Carlo Tree Search algorithm.
+# This is a very simple Python 3 implementation of the Information Set Monte Carlo Tree Search algorithm.
 # The function ISMCTS(rootstate, itermax, verbose = False) is towards the bottom of the code.
 # It aims to have the clearest and simplest possible code, and for the sake of clarity, the code
 # is orders of magnitude less efficient than it could be made, particularly by using a
