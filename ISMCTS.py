@@ -74,7 +74,7 @@ class Card:
 		suit must be a string of length 1, one of 'C' (Clubs), 'D' (Diamonds), 'H' (Hearts) or 'S' (Spades)
 	"""
 	def __init__(self, rank, suit):
-		if rank not in range(2, 14+1):
+		if rank not in list(range(2, 14+1)):
 			raise Exception("Invalid rank")
 		if suit not in ['C', 'D', 'H', 'S']:
 			raise Exception("Invalid suit")
@@ -102,12 +102,12 @@ class KnockoutWhistState(GameState):
 		self.numberOfPlayers = n
 		self.playerToMove   = 1
 		self.tricksInRound  = 7
-		self.playerHands    = {p:[] for p in xrange(1, self.numberOfPlayers+1)}
+		self.playerHands    = {p:[] for p in range(1, self.numberOfPlayers+1)}
 		self.discards       = [] # Stores the cards that have been played already in this round
 		self.currentTrick   = []
 		self.trumpSuit      = None
 		self.tricksTaken    = {} # Number of tricks taken by each player this round
-		self.knockedOut     = {p:False for p in xrange(1, self.numberOfPlayers+1)}
+		self.knockedOut     = {p:False for p in range(1, self.numberOfPlayers+1)}
 		self.Deal()
 	
 	def Clone(self):
@@ -136,7 +136,7 @@ class KnockoutWhistState(GameState):
 		
 		# Deal the unseen cards to the other players
 		random.shuffle(unseenCards)
-		for p in xrange(1, st.numberOfPlayers+1):
+		for p in range(1, st.numberOfPlayers+1):
 			if p != observer:
 				# Deal cards to player p
 				# Store the size of player p's hand
@@ -151,19 +151,19 @@ class KnockoutWhistState(GameState):
 	def GetCardDeck(self):
 		""" Construct a standard deck of 52 cards.
 		"""
-		return [Card(rank, suit) for rank in xrange(2, 14+1) for suit in ['C', 'D', 'H', 'S']]
+		return [Card(rank, suit) for rank in range(2, 14+1) for suit in ['C', 'D', 'H', 'S']]
 	
 	def Deal(self):
 		""" Reset the game state for the beginning of a new round, and deal the cards.
 		"""
 		self.discards = []
 		self.currentTrick = []
-		self.tricksTaken = {p:0 for p in xrange(1, self.numberOfPlayers+1)}
+		self.tricksTaken = {p:0 for p in range(1, self.numberOfPlayers+1)}
 		
 		# Construct a deck, shuffle it, and deal it to the players
 		deck = self.GetCardDeck()
 		random.shuffle(deck)
-		for p in xrange(1, self.numberOfPlayers+1):
+		for p in range(1, self.numberOfPlayers+1):
 			self.playerHands[p] = deck[ : self.tricksInRound]
 			deck = deck[self.tricksInRound : ]
 		
@@ -198,7 +198,7 @@ class KnockoutWhistState(GameState):
 			(leader, leadCard) = self.currentTrick[0]
 			suitedPlays = [(player, card.rank) for (player, card) in self.currentTrick if card.suit == leadCard.suit]
 			trumpPlays  = [(player, card.rank) for (player, card) in self.currentTrick if card.suit == self.trumpSuit]
-			sortedPlays = sorted(suitedPlays, key = lambda (player, rank) : rank) + sorted(trumpPlays, key = lambda (player, rank) : rank)
+			sortedPlays = sorted(suitedPlays, key = lambda player_rank : player_rank[1]) + sorted(trumpPlays, key = lambda player_rank1 : player_rank1[1])
 			# The winning play is the last element in sortedPlays
 			trickWinner = sortedPlays[-1][0]
 			
@@ -211,9 +211,9 @@ class KnockoutWhistState(GameState):
 			# If the next player's hand is empty, this round is over
 			if self.playerHands[self.playerToMove] == []:
 				self.tricksInRound -= 1
-				self.knockedOut = {p:(self.knockedOut[p] or self.tricksTaken[p] == 0) for p in xrange(1, self.numberOfPlayers+1)}
+				self.knockedOut = {p:(self.knockedOut[p] or self.tricksTaken[p] == 0) for p in range(1, self.numberOfPlayers+1)}
 				# If all but one players are now knocked out, the game is over
-				if len([x for x in self.knockedOut.itervalues() if x == False]) <= 1:
+				if len([x for x in self.knockedOut.values() if x == False]) <= 1:
 					self.tricksInRound = 0
 				
 				self.Deal()
@@ -368,8 +368,8 @@ def ISMCTS(rootstate, itermax, verbose = False):
 			node = node.parentNode
 
 	# Output some information about the tree - can be omitted
-	if (verbose): print rootnode.TreeToString(0)
-	else: print rootnode.ChildrenToString()
+	if (verbose): print(rootnode.TreeToString(0))
+	else: print(rootnode.ChildrenToString())
 
 	return max(rootnode.childNodes, key = lambda c: c.visits).move # return the move that was most visited
 
@@ -379,22 +379,22 @@ def PlayGame():
 	state = KnockoutWhistState(4)
 	
 	while (state.GetMoves() != []):
-		print str(state)
+		print(str(state))
 		# Use different numbers of iterations (simulations, tree nodes) for different players
 		if state.playerToMove == 1:
 			m = ISMCTS(rootstate = state, itermax = 1000, verbose = False)
 		else:
 			m = ISMCTS(rootstate = state, itermax = 100, verbose = False)
-		print "Best Move: " + str(m) + "\n"
+		print("Best Move: " + str(m) + "\n")
 		state.DoMove(m)
 	
 	someoneWon = False
-	for p in xrange(1, state.numberOfPlayers + 1):
+	for p in range(1, state.numberOfPlayers + 1):
 		if state.GetResult(p) > 0:
-			print "Player " + str(p) + " wins!"
+			print("Player " + str(p) + " wins!")
 			someoneWon = True
 	if not someoneWon:
-		print "Nobody wins!"
+		print("Nobody wins!")
 
 if __name__ == "__main__":
 	PlayGame()
