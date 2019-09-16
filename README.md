@@ -30,3 +30,8 @@ the next round. Each subsequent round will have one less card.
 The last player remaining is the winner.
 
 Note: in the full version of the rules, the player with the most tricks decides the trump suit of the next round and there is an additional "dog's life" condition
+
+Strength of ISMCTS
+==================
+
+1000 iterations vs random move = 67 : 33
