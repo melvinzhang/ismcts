@@ -22,11 +22,11 @@ from copy import deepcopy
 
 class GameState:
     """ A state of the game, i.e. the game board. These are the only functions which are
-		absolutely necessary to implement ISMCTS in any imperfect information game,
-		although they could be enhanced and made quicker, for example by using a 
-		GetRandomMove() function to generate a random move during rollout.
-		By convention the players are numbered 1, 2, ..., self.numberOfPlayers.
-	"""
+        absolutely necessary to implement ISMCTS in any imperfect information game,
+        although they could be enhanced and made quicker, for example by using a 
+        GetRandomMove() function to generate a random move during rollout.
+        By convention the players are numbered 1, 2, ..., self.numberOfPlayers.
+    """
 
     def __init__(self):
         self.numberOfPlayers = 2
@@ -34,48 +34,48 @@ class GameState:
 
     def GetNextPlayer(self, p):
         """ Return the player to the left of the specified player
-		"""
+        """
         return (p % self.numberOfPlayers) + 1
 
     def Clone(self):
         """ Create a deep clone of this game state.
-		"""
+        """
         st = GameState()
         st.playerToMove = self.playerToMove
         return st
 
     def CloneAndRandomize(self, observer):
         """ Create a deep clone of this game state, randomizing any information not visible to the specified observer player.
-		"""
+        """
         return self.Clone()
 
     def DoMove(self, move):
         """ Update a state by carrying out the given move.
-			Must update playerToMove.
-		"""
+            Must update playerToMove.
+        """
         self.playerToMove = self.GetNextPlayer(self.playerToMove)
 
     def GetMoves(self):
         """ Get all possible moves from this state.
-		"""
+        """
         raise NotImplementedException()
 
     def GetResult(self, player):
         """ Get the game result from the viewpoint of player. 
-		"""
+        """
         raise NotImplementedException()
 
     def __repr__(self):
         """ Don't need this - but good style.
-		"""
+        """
         pass
 
 
 class Card:
     """ A playing card, with rank and suit.
-		rank must be an integer between 2 and 14 inclusive (Jack=11, Queen=12, King=13, Ace=14)
-		suit must be a string of length 1, one of 'C' (Clubs), 'D' (Diamonds), 'H' (Hearts) or 'S' (Spades)
-	"""
+        rank must be an integer between 2 and 14 inclusive (Jack=11, Queen=12, King=13, Ace=14)
+        suit must be a string of length 1, one of 'C' (Clubs), 'D' (Diamonds), 'H' (Hearts) or 'S' (Spades)
+    """
 
     def __init__(self, rank, suit):
         if rank not in list(range(2, 14 + 1)):
@@ -97,14 +97,14 @@ class Card:
 
 class KnockoutWhistState(GameState):
     """ A state of the game Knockout Whist.
-		See http://www.pagat.com/whist/kowhist.html for a full description of the rules.
-		For simplicity of implementation, this version of the game does not include the "dog's life" rule
-		and the trump suit for each round is picked randomly rather than being chosen by one of the players.
-	"""
+        See http://www.pagat.com/whist/kowhist.html for a full description of the rules.
+        For simplicity of implementation, this version of the game does not include the "dog's life" rule
+        and the trump suit for each round is picked randomly rather than being chosen by one of the players.
+    """
 
     def __init__(self, n):
         """ Initialise the game state. n is the number of players (from 2 to 7).
-		"""
+        """
         self.numberOfPlayers = n
         self.playerToMove = 1
         self.tricksInRound = 7
@@ -120,7 +120,7 @@ class KnockoutWhistState(GameState):
 
     def Clone(self):
         """ Create a deep clone of this game state.
-		"""
+        """
         st = KnockoutWhistState(self.numberOfPlayers)
         st.playerToMove = self.playerToMove
         st.tricksInRound = self.tricksInRound
@@ -134,7 +134,7 @@ class KnockoutWhistState(GameState):
 
     def CloneAndRandomize(self, observer):
         """ Create a deep clone of this game state, randomizing any information not visible to the specified observer player.
-		"""
+        """
         st = self.Clone()
 
         # The observer can see his own hand and the cards in the current trick, and can remember the cards played in previous tricks
@@ -162,7 +162,7 @@ class KnockoutWhistState(GameState):
 
     def GetCardDeck(self):
         """ Construct a standard deck of 52 cards.
-		"""
+        """
         return [
             Card(rank, suit)
             for rank in range(2, 14 + 1)
@@ -171,7 +171,7 @@ class KnockoutWhistState(GameState):
 
     def Deal(self):
         """ Reset the game state for the beginning of a new round, and deal the cards.
-		"""
+        """
         self.discards = []
         self.currentTrick = []
         self.tricksTaken = {p: 0 for p in range(1, self.numberOfPlayers + 1)}
@@ -188,7 +188,7 @@ class KnockoutWhistState(GameState):
 
     def GetNextPlayer(self, p):
         """ Return the player to the left of the specified player, skipping players who have been knocked out
-		"""
+        """
         next = (p % self.numberOfPlayers) + 1
         # Skip any knocked-out players
         while next != p and self.knockedOut[next]:
@@ -197,8 +197,8 @@ class KnockoutWhistState(GameState):
 
     def DoMove(self, move):
         """ Update a state by carrying out the given move.
-			Must update playerToMove.
-		"""
+            Must update playerToMove.
+        """
         # Store the played card in the current trick
         self.currentTrick.append((self.playerToMove, move))
 
@@ -251,7 +251,7 @@ class KnockoutWhistState(GameState):
 
     def GetMoves(self):
         """ Get all possible moves from this state.
-		"""
+        """
         hand = self.playerHands[self.playerToMove]
         if self.currentTrick == []:
             # May lead a trick with any card
@@ -268,12 +268,12 @@ class KnockoutWhistState(GameState):
 
     def GetResult(self, player):
         """ Get the game result from the viewpoint of player. 
-		"""
+        """
         return 0 if (self.knockedOut[player]) else 1
 
     def __repr__(self):
         """ Return a human-readable representation of the state
-		"""
+        """
         result = "Round %i" % self.tricksInRound
         result += " | P%i: " % self.playerToMove
         result += ",".join(str(card) for card in self.playerHands[self.playerToMove])
@@ -289,7 +289,7 @@ class KnockoutWhistState(GameState):
 
 class Node:
     """ A node in the game tree. Note wins is always from the viewpoint of playerJustMoved.
-	"""
+    """
 
     def __init__(self, move=None, parent=None, playerJustMoved=None):
         self.move = move  # the move that got us to this node - "None" for the root node
@@ -304,7 +304,7 @@ class Node:
 
     def GetUntriedMoves(self, legalMoves):
         """ Return the elements of legalMoves for which this node does not have children.
-		"""
+        """
 
         # Find all moves for which this node *does* have children
         triedMoves = [child.move for child in self.childNodes]
@@ -314,8 +314,8 @@ class Node:
 
     def UCBSelectChild(self, legalMoves, exploration=0.7):
         """ Use the UCB1 formula to select a child node, filtered by the given list of legal moves.
-			exploration is a constant balancing between exploitation and exploration, with default value 0.7 (approximately sqrt(2) / 2)
-		"""
+            exploration is a constant balancing between exploitation and exploration, with default value 0.7 (approximately sqrt(2) / 2)
+        """
 
         # Filter the list of children by the list of legal moves
         legalChildren = [child for child in self.childNodes if child.move in legalMoves]
@@ -336,15 +336,15 @@ class Node:
 
     def AddChild(self, m, p):
         """ Add a new child node for the move m.
-			Return the added child node
-		"""
+            Return the added child node
+        """
         n = Node(move=m, parent=self, playerJustMoved=p)
         self.childNodes.append(n)
         return n
 
     def Update(self, terminalState):
         """ Update this node - increment the visit count by one, and increase the win count by the result of terminalState for self.playerJustMoved.
-		"""
+        """
         self.visits += 1
         if self.playerJustMoved is not None:
             self.wins += terminalState.GetResult(self.playerJustMoved)
@@ -359,7 +359,7 @@ class Node:
 
     def TreeToString(self, indent):
         """ Represent the tree as a string, for debugging purposes.
-		"""
+        """
         s = self.IndentString(indent) + str(self)
         for c in self.childNodes:
             s += c.TreeToString(indent + 1)
@@ -380,8 +380,8 @@ class Node:
 
 def ISMCTS(rootstate, itermax, verbose=False):
     """ Conduct an ISMCTS search for itermax iterations starting from rootstate.
-		Return the best move from the rootstate.
-	"""
+        Return the best move from the rootstate.
+    """
 
     rootnode = Node()
 
@@ -430,7 +430,7 @@ def ISMCTS(rootstate, itermax, verbose=False):
 
 def PlayGame():
     """ Play a sample game between two ISMCTS players.
-	"""
+    """
     state = KnockoutWhistState(4)
 
     while state.GetMoves() != []:
