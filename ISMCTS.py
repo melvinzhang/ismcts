@@ -15,8 +15,8 @@
 # For more information about Monte Carlo Tree Search check out our web site at www.mcts.ai
 # Also read the article accompanying this code at ***URL HERE***
 
-from math import *
-import random, sys
+from math import sqrt, log
+import random
 from copy import deepcopy
 
 
