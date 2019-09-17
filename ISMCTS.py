@@ -18,7 +18,6 @@
 from math import sqrt, log
 import random
 from copy import deepcopy
-import argparse
 
 class GameState:
     """ A state of the game, i.e. the game board. These are the only functions which are
@@ -377,7 +376,6 @@ class Node:
             s += str(c) + "\n"
         return s
 
-
 def ISMCTS(rootstate, itermax, verbose=False):
     """ Conduct an ISMCTS search for itermax iterations starting from rootstate.
         Return the best move from the rootstate.
@@ -428,19 +426,15 @@ def ISMCTS(rootstate, itermax, verbose=False):
     ).move  # return the move that was most visited
 
 
-def PlayGame(args):
+def PlayGame(n, agents):
     """ Play a sample game between two ISMCTS players.
     """
-    random.seed(args.seed)
-    state = KnockoutWhistState(args.players)
+    state = KnockoutWhistState(n)
 
     while state.GetMoves() != []:
         print(str(state))
         # Use different numbers of iterations (simulations, tree nodes) for different players
-        if state.playerToMove == 1:
-            m = ISMCTS(rootstate=state, itermax=1000, verbose=False)
-        else:
-            m = ISMCTS(rootstate=state, itermax=100, verbose=False)
+        m = agents[state.playerToMove](state)
         print("Best Move: " + str(m) + "\n")
         state.DoMove(m)
 
@@ -454,7 +448,10 @@ def PlayGame(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--players', type=int, help='number of players (default:4)', default=4)
-    parser.add_argument('--seed', type=int, help='random seed (default:None)', default=None)
-    PlayGame(parser.parse_args())
+    agents = {
+        1: lambda s: ISMCTS(rootstate=s, itermax=1000, verbose=False),
+        2: lambda s: ISMCTS(rootstate=s, itermax=100, verbose=False),
+        3: lambda s: ISMCTS(rootstate=s, itermax=100, verbose=False),
+        4: lambda s: ISMCTS(rootstate=s, itermax=100, verbose=False),
+    }
+    PlayGame(4, agents)
