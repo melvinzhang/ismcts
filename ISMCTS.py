@@ -182,8 +182,8 @@ class KnockoutWhistState(GameState):
             self.playerHands[p] = deck[: self.tricksInRound]
             deck = deck[self.tricksInRound :]
 
-        # Choose the trump suit for this round
-        self.trumpSuit = random.choice(["C", "D", "H", "S"])
+        # Choose the trump suit for this round based on the next card in deck
+        self.trumpSuit = deck[0].suit
 
     def GetNextPlayer(self, p):
         """ Return the player to the left of the specified player, skipping players who have been knocked out

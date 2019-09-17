@@ -22,7 +22,7 @@ from https://www.pagat.com/whist/kowhist.html
 Two to seven players may play. From lowest to highest, the ranks are 2, .., 10, J, Q, K, A
 
 In the first round, each player is dealt seven cards then a trump suit is
-determine randomly.
+determine by the next card in the deck.
 
 Player 1 goes first to play a card, followed by player 2, 3, and so on. Until
 everyone has played one card, this is one trick.
